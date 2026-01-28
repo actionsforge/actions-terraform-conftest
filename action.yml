@@ -1,0 +1,45 @@
+name: 'Terraform Conftest'
+description: 'Run Conftest validation on Terraform plan output'
+author: 'Actions Forge'
+inputs:
+  conftest-version:
+    description: 'Conftest version (e.g., v0.66.0) or "latest"'
+    required: false
+    default: 'latest'
+  terraform-version:
+    description: 'Terraform version for hashicorp/setup-terraform'
+    required: false
+  policy-path:
+    description: 'Path to conftest policy files'
+    required: false
+    default: './policy'
+  working-directory:
+    description: 'Terraform working directory'
+    required: false
+    default: '.'
+  run-terraform-test:
+    description: 'Run terraform test'
+    required: false
+    default: 'true'
+  run-terraform-plan:
+    description: 'Run terraform plan and generate JSON'
+    required: false
+    default: 'true'
+  run-conftest:
+    description: 'Run conftest validation'
+    required: false
+    default: 'true'
+  terraform-plan-file:
+    description: 'Output file for terraform plan JSON'
+    required: false
+    default: 'tfplan.json'
+outputs:
+  plan-file:
+    description: 'Path to the generated Terraform plan JSON file'
+  conftest-passed:
+    description: 'Whether conftest validation passed'
+  violations-count:
+    description: 'Number of policy violations found'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

@@ -1,0 +1,91 @@
+name: Test Terraform Conftest Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      conftest-version:
+        description: 'Conftest version to use'
+        required: false
+        default: 'latest'
+      terraform-version:
+        description: 'Terraform version to use'
+        required: false
+      policy-path:
+        description: 'Path to conftest policy files'
+        required: false
+        default: './policy'
+      working-directory:
+        description: 'Terraform working directory'
+        required: false
+        default: '.'
+      run-terraform-test:
+        description: 'Run terraform test'
+        required: false
+        default: 'true'
+      run-terraform-plan:
+        description: 'Run terraform plan'
+        required: false
+        default: 'true'
+      run-conftest:
+        description: 'Run conftest validation'
+        required: false
+        default: 'true'
+
+jobs:
+  test-action:
+    name: Test Terraform Conftest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform-version }}
+
+      - name: Create test Terraform files
+        run: |
+          mkdir -p test-terraform
+          cat > test-terraform/main.tf <<EOL
+          terraform {
+            required_version = ">= 1.0"
+          }
+
+          resource "null_resource" "test" {
+            triggers = {
+              value = "test"
+            }
+          }
+          EOL
+
+      - name: Create test policies
+        run: |
+          mkdir -p policy
+          cat > policy/main.rego <<EOL
+          package terraform
+
+          deny[msg] {
+            input.resource_changes[_].type == "null_resource"
+            msg := "null_resource is not allowed"
+          }
+          EOL
+
+      - name: Test action
+        uses: ./
+        with:
+          conftest-version: ${{ inputs.conftest-version }}
+          terraform-version: ${{ inputs.terraform-version }}
+          policy-path: ${{ inputs.policy-path }}
+          working-directory: ${{ inputs.working-directory }}
+          run-terraform-test: ${{ inputs.run-terraform-test }}
+          run-terraform-plan: ${{ inputs.run-terraform-plan }}
+          run-conftest: ${{ inputs.run-conftest }}
+
+      - name: Verify test results
+        run: |
+          echo "✅ Action test completed"
+          echo "Conftest version: ${{ inputs.conftest-version }}"
+          echo "Terraform version: ${{ inputs.terraform-version }}"
+          echo "Policy path: ${{ inputs.policy-path }}"
+          echo "Working directory: ${{ inputs.working-directory }}"
