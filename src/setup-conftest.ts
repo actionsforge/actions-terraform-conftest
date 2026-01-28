@@ -14,14 +14,26 @@ const CONFTEST_BINARY_NAME = 'conftest';
 async function resolveLatestVersion(): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
+      // Use GITHUB_TOKEN if available to avoid rate limiting
+      const githubToken = process.env.GITHUB_TOKEN;
+      const headers: Record<string, string> = {
+        'User-Agent': 'actions-terraform-conftest',
+        Accept: 'application/vnd.github.v3+json'
+      };
+
+      if (githubToken) {
+        // GitHub API accepts both 'token' and 'Bearer' formats, but 'Bearer' is more standard
+        headers['Authorization'] = `Bearer ${githubToken}`;
+        core.info('Using GITHUB_TOKEN for authenticated API requests');
+      } else {
+        core.warning('GITHUB_TOKEN not found. API requests will be unauthenticated and may hit rate limits.');
+      }
+
       const options = {
         hostname: 'api.github.com',
         path: `/repos/${CONFTEST_REPO}/releases/latest`,
         method: 'GET',
-        headers: {
-          'User-Agent': 'actions-terraform-conftest',
-          Accept: 'application/vnd.github.v3+json'
-        }
+        headers
       };
 
       const req = https.request(options, (res) => {
@@ -31,14 +43,40 @@ async function resolveLatestVersion(): Promise<string> {
         });
         res.on('end', () => {
           try {
+            // Check HTTP status code
+            if (res.statusCode !== 200) {
+              let errorMessage = `GitHub API returned status ${res.statusCode}`;
+              try {
+                const errorData = JSON.parse(data);
+                errorMessage += `: ${errorData.message || JSON.stringify(errorData)}`;
+              } catch {
+                // If response is not JSON (e.g., HTML error page), use raw data
+                errorMessage += `. Response: ${data.substring(0, 200)}`;
+              }
+              reject(new Error(errorMessage));
+              return;
+            }
+
             const release = JSON.parse(data);
+
+            // Check if tag_name exists
+            if (!release || !release.tag_name) {
+              reject(
+                new Error(
+                  `GitHub API response missing tag_name. Response: ${JSON.stringify(release)}`
+                )
+              );
+              return;
+            }
+
             const version = release.tag_name.startsWith('v')
               ? release.tag_name.substring(1)
               : release.tag_name;
             core.info(`Resolved latest version: ${version}`);
             resolve(version);
           } catch (error) {
-            reject(new Error(`Failed to parse GitHub API response: ${error}`));
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            reject(new Error(`Failed to parse GitHub API response: ${errorMessage}`));
           }
         });
       });
