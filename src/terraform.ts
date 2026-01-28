@@ -32,18 +32,25 @@ export async function terraformPlan(
 ): Promise<string> {
   core.info('Running terraform plan...');
 
-  const planBinary = path.join(workingDirectory, 'tfplan.binary');
-  const planJson = path.join(workingDirectory, planFile);
+  // Normalize planFile to just the basename (no directory components)
+  // since terraform commands run with cwd set to workingDirectory
+  const planFileBasename = path.basename(planFile);
+
+  // Use relative filename for terraform commands (since cwd is workingDirectory)
+  const planBinaryFilename = 'tfplan.binary';
+  const planJson = path.join(workingDirectory, planFileBasename);
 
   // Run terraform plan with binary output
-  await exec.exec('terraform', ['plan', '-out', planBinary], {
+  // Use relative filename since cwd is set to workingDirectory
+  await exec.exec('terraform', ['plan', '-out', planBinaryFilename], {
     cwd: workingDirectory
   });
 
   // Convert binary plan to JSON
+  // Use relative filename since cwd is set to workingDirectory
   core.info(`Converting plan to JSON: ${planJson}`);
   const jsonOutput: string[] = [];
-  const exitCode = await exec.exec('terraform', ['show', '-json', planBinary], {
+  const exitCode = await exec.exec('terraform', ['show', '-json', planBinaryFilename], {
     cwd: workingDirectory,
     listeners: {
       stdout: (data: Buffer) => {

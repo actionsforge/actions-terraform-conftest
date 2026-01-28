@@ -23,27 +23,21 @@ export async function runConftest(
     throw new Error(`Policy path does not exist: ${policyPath}`);
   }
 
-  let exitCode = 0;
   const output: string[] = [];
   const errors: string[] = [];
 
-  try {
-    await exec.exec(conftestPath, ['test', planFile, '-p', policyPath], {
-      listeners: {
-        stdout: (data: Buffer) => {
-          output.push(data.toString());
-        },
-        stderr: (data: Buffer) => {
-          errors.push(data.toString());
-        }
+  // Run conftest with ignoreReturnCode to capture exit code ourselves
+  const exitCode = await exec.exec(conftestPath, ['test', planFile, '-p', policyPath], {
+    listeners: {
+      stdout: (data: Buffer) => {
+        output.push(data.toString());
       },
-      ignoreReturnCode: true
-    });
-  } catch (error) {
-    // exec.exec throws if exit code is non-zero, but we're using ignoreReturnCode
-    // So we need to check the actual exit code
-    exitCode = typeof error === 'object' && error !== null && 'code' in error ? (error as { code: number }).code : 1;
-  }
+      stderr: (data: Buffer) => {
+        errors.push(data.toString());
+      }
+    },
+    ignoreReturnCode: true
+  });
 
   const outputText = output.join('');
   const errorText = errors.join('');

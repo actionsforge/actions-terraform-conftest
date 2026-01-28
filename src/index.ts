@@ -57,6 +57,8 @@ async function run(): Promise<void> {
 
       if (!conftestPassed) {
         core.setFailed(`Conftest validation failed with ${violationsCount} violation(s)`);
+        // Don't continue - the action should fail
+        return;
       }
     }
 

@@ -11,5 +11,10 @@ export default defineConfig({
   target: 'node20',
   outDir: 'dist',
   external: [],
-  noExternal: []
+  noExternal: [
+    '@actions/core',
+    '@actions/exec',
+    '@actions/io',
+    '@actions/tool-cache'
+  ]
 });
