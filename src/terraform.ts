@@ -14,6 +14,26 @@ export async function terraformInit(workingDirectory: string): Promise<void> {
 }
 
 /**
+ * Runs terraform fmt -check to verify formatting
+ */
+export async function terraformFmt(workingDirectory: string): Promise<void> {
+  core.info('Running terraform fmt -check...');
+  await exec.exec('terraform', ['fmt', '-check', '-recursive'], {
+    cwd: workingDirectory
+  });
+}
+
+/**
+ * Runs terraform validate
+ */
+export async function terraformValidate(workingDirectory: string): Promise<void> {
+  core.info('Running terraform validate...');
+  await exec.exec('terraform', ['validate'], {
+    cwd: workingDirectory
+  });
+}
+
+/**
  * Runs terraform test
  */
 export async function terraformTest(workingDirectory: string): Promise<void> {
@@ -77,6 +97,8 @@ export async function terraformPlan(
  */
 export async function runTerraform(
   workingDirectory: string,
+  runFmt: boolean,
+  runValidate: boolean,
   runTest: boolean,
   runPlan: boolean,
   planFile: string
@@ -88,6 +110,16 @@ export async function runTerraform(
 
   // Run terraform init
   await terraformInit(workingDirectory);
+
+  // Run terraform fmt if enabled
+  if (runFmt) {
+    await terraformFmt(workingDirectory);
+  }
+
+  // Run terraform validate if enabled
+  if (runValidate) {
+    await terraformValidate(workingDirectory);
+  }
 
   // Run terraform test if enabled
   if (runTest) {

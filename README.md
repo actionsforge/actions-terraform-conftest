@@ -4,11 +4,11 @@ Reusable GitHub Action to run Conftest validation on Terraform plan output.
 
 ## Features
 
-- ✅ Runs Terraform test, plan, and Conftest validation
+- ✅ Runs Terraform fmt, validate, test, plan, and Conftest validation
 - ✅ Supports version pinning for both Terraform and Conftest
 - ✅ Uses GitHub Actions tool cache for fast subsequent runs
 - ✅ Generates Terraform plan in JSON format for Conftest
-- ✅ Configurable workflow steps (test, plan, conftest)
+- ✅ Configurable workflow steps (fmt, validate, test, plan, conftest)
 - ✅ Detailed outputs for integration with other actions
 
 ## Usage
@@ -86,6 +86,8 @@ jobs:
 | `terraform-version` | Terraform version for hashicorp/setup-terraform | No | (uses setup-terraform default) |
 | `policy-path` | Path to conftest policy files (Rego) | No | `./policy` |
 | `working-directory` | Terraform working directory | No | `.` |
+| `run-terraform-fmt` | Run `terraform fmt -check` | No | `true` |
+| `run-terraform-validate` | Run `terraform validate` | No | `true` |
 | `run-terraform-test` | Run `terraform test` | No | `true` |
 | `run-terraform-plan` | Run `terraform plan` and generate JSON | No | `true` |
 | `run-conftest` | Run conftest validation | No | `true` |
@@ -105,9 +107,11 @@ The action executes the following steps (configurable):
 
 1. **Setup Conftest**: Downloads and caches the specified conftest version
 2. **Terraform Init**: Runs `terraform init` in the working directory
-3. **Terraform Test** (optional): Runs `terraform test` if enabled
-4. **Terraform Plan**: Runs `terraform plan` and converts to JSON format
-5. **Conftest Validation**: Runs `conftest test` against the plan JSON
+3. **Terraform Fmt** (optional): Runs `terraform fmt -check -recursive` if enabled
+4. **Terraform Validate** (optional): Runs `terraform validate` if enabled
+5. **Terraform Test** (optional): Runs `terraform test` if enabled
+6. **Terraform Plan**: Runs `terraform plan` and converts to JSON format
+7. **Conftest Validation**: Runs `conftest test` against the plan JSON
 
 ## Policy Files
 

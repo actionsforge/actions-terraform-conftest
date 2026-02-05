@@ -10,6 +10,8 @@ async function run(): Promise<void> {
     const conftestVersion = core.getInput('conftest-version') || 'latest';
     const policyPath = core.getInput('policy-path') || './policy';
     const workingDirectory = core.getInput('working-directory') || '.';
+    const runTerraformFmt = core.getBooleanInput('run-terraform-fmt');
+    const runTerraformValidate = core.getBooleanInput('run-terraform-validate');
     const runTerraformTest = core.getBooleanInput('run-terraform-test');
     const runTerraformPlan = core.getBooleanInput('run-terraform-plan');
     const runConftestValidation = core.getBooleanInput('run-conftest');
@@ -19,6 +21,8 @@ async function run(): Promise<void> {
     core.info(`Conftest version: ${conftestVersion}`);
     core.info(`Policy path: ${policyPath}`);
     core.info(`Working directory: ${workingDirectory}`);
+    core.info(`Run terraform fmt: ${runTerraformFmt}`);
+    core.info(`Run terraform validate: ${runTerraformValidate}`);
     core.info(`Run terraform test: ${runTerraformTest}`);
     core.info(`Run terraform plan: ${runTerraformPlan}`);
     core.info(`Run conftest: ${runConftestValidation}`);
@@ -31,9 +35,11 @@ async function run(): Promise<void> {
 
     // Run terraform operations
     let planFilePath: string | null = null;
-    if (runTerraformTest || runTerraformPlan) {
+    if (runTerraformFmt || runTerraformValidate || runTerraformTest || runTerraformPlan) {
       planFilePath = await runTerraform(
         workingDirectory,
+        runTerraformFmt,
+        runTerraformValidate,
         runTerraformTest,
         runTerraformPlan,
         terraformPlanFile
