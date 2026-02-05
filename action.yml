@@ -1,45 +1,53 @@
-name: 'Terraform Conftest'
-description: 'Run Conftest validation on Terraform plan output'
-author: 'Actions Forge'
+name: "Terraform Conftest"
+description: "Run Conftest validation on Terraform plan output"
+author: "Actions Forge"
 inputs:
   conftest-version:
     description: 'Conftest version (e.g., v0.66.0) or "latest"'
     required: false
-    default: 'latest'
+    default: "latest"
   terraform-version:
-    description: 'Terraform version for hashicorp/setup-terraform'
+    description: "Terraform version for hashicorp/setup-terraform"
     required: false
   policy-path:
-    description: 'Path to conftest policy files'
+    description: "Path to conftest policy files"
     required: false
-    default: './policy'
+    default: "./policy"
   working-directory:
-    description: 'Terraform working directory'
+    description: "Terraform working directory"
     required: false
-    default: '.'
+    default: "."
+  run-terraform-fmt:
+    description: "Run terraform fmt -check"
+    required: false
+    default: "true"
+  run-terraform-validate:
+    description: "Run terraform validate"
+    required: false
+    default: "true"
   run-terraform-test:
-    description: 'Run terraform test'
+    description: "Run terraform test"
     required: false
-    default: 'true'
+    default: "true"
   run-terraform-plan:
-    description: 'Run terraform plan and generate JSON'
+    description: "Run terraform plan and generate JSON"
     required: false
-    default: 'true'
+    default: "true"
   run-conftest:
-    description: 'Run conftest validation'
+    description: "Run conftest validation"
     required: false
-    default: 'true'
+    default: "true"
   terraform-plan-file:
-    description: 'Output file for terraform plan JSON'
+    description: "Output file for terraform plan JSON"
     required: false
-    default: 'tfplan.json'
+    default: "tfplan.json"
 outputs:
   plan-file:
-    description: 'Path to the generated Terraform plan JSON file'
+    description: "Path to the generated Terraform plan JSON file"
   conftest-passed:
-    description: 'Whether conftest validation passed'
+    description: "Whether conftest validation passed"
   violations-count:
-    description: 'Number of policy violations found'
+    description: "Number of policy violations found"
 runs:
-  using: 'node20'
-  main: 'dist/index.js'
+  using: "node20"
+  main: "dist/index.js"
