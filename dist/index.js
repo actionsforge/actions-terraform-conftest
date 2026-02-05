@@ -21905,6 +21905,18 @@ async function terraformInit(workingDirectory) {
     cwd: workingDirectory
   });
 }
+async function terraformFmt(workingDirectory) {
+  core2.info("Running terraform fmt -check...");
+  await exec3.exec("terraform", ["fmt", "-check", "-recursive"], {
+    cwd: workingDirectory
+  });
+}
+async function terraformValidate(workingDirectory) {
+  core2.info("Running terraform validate...");
+  await exec3.exec("terraform", ["validate"], {
+    cwd: workingDirectory
+  });
+}
 async function terraformTest(workingDirectory) {
   core2.info("Running terraform test...");
   await exec3.exec("terraform", ["test"], {
@@ -21938,11 +21950,17 @@ async function terraformPlan(workingDirectory, planFile) {
   core2.info(`Plan JSON written to: ${planJson}`);
   return planJson;
 }
-async function runTerraform(workingDirectory, runTest, runPlan, planFile) {
+async function runTerraform(workingDirectory, runFmt, runValidate, runTest, runPlan, planFile) {
   if (!fs2.existsSync(workingDirectory)) {
     throw new Error(`Working directory does not exist: ${workingDirectory}`);
   }
   await terraformInit(workingDirectory);
+  if (runFmt) {
+    await terraformFmt(workingDirectory);
+  }
+  if (runValidate) {
+    await terraformValidate(workingDirectory);
+  }
   if (runTest) {
     await terraformTest(workingDirectory);
   }
@@ -22027,6 +22045,8 @@ async function run() {
     const conftestVersion = core4.getInput("conftest-version") || "latest";
     const policyPath = core4.getInput("policy-path") || "./policy";
     const workingDirectory = core4.getInput("working-directory") || ".";
+    const runTerraformFmt = core4.getBooleanInput("run-terraform-fmt");
+    const runTerraformValidate = core4.getBooleanInput("run-terraform-validate");
     const runTerraformTest = core4.getBooleanInput("run-terraform-test");
     const runTerraformPlan = core4.getBooleanInput("run-terraform-plan");
     const runConftestValidation = core4.getBooleanInput("run-conftest");
@@ -22035,6 +22055,8 @@ async function run() {
     core4.info(`Conftest version: ${conftestVersion}`);
     core4.info(`Policy path: ${policyPath}`);
     core4.info(`Working directory: ${workingDirectory}`);
+    core4.info(`Run terraform fmt: ${runTerraformFmt}`);
+    core4.info(`Run terraform validate: ${runTerraformValidate}`);
     core4.info(`Run terraform test: ${runTerraformTest}`);
     core4.info(`Run terraform plan: ${runTerraformPlan}`);
     core4.info(`Run conftest: ${runConftestValidation}`);
@@ -22043,9 +22065,11 @@ async function run() {
     core4.addPath(path3.dirname(conftestPath));
     core4.info(`Conftest available at: ${conftestPath}`);
     let planFilePath = null;
-    if (runTerraformTest || runTerraformPlan) {
+    if (runTerraformFmt || runTerraformValidate || runTerraformTest || runTerraformPlan) {
       planFilePath = await runTerraform(
         workingDirectory,
+        runTerraformFmt,
+        runTerraformValidate,
         runTerraformTest,
         runTerraformPlan,
         terraformPlanFile
