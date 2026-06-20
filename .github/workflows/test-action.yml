@@ -4,32 +4,32 @@ on:
   workflow_dispatch:
     inputs:
       conftest-version:
-        description: "Conftest version to use"
+        description: 'Conftest version to use'
         required: false
-        default: "latest"
+        default: 'latest'
       terraform-version:
-        description: "Terraform version to use"
+        description: 'Terraform version to use'
         required: false
       policy-path:
-        description: "Path to conftest policy files"
+        description: 'Path to conftest policy files'
         required: false
-        default: "./policy"
+        default: './policy'
       working-directory:
-        description: "Terraform working directory"
+        description: 'Terraform working directory'
         required: false
-        default: "./test-terraform"
+        default: './test-terraform'
       run-terraform-test:
-        description: "Run terraform test"
+        description: 'Run terraform test'
         required: false
-        default: "true"
+        default: 'true'
       run-terraform-plan:
-        description: "Run terraform plan"
+        description: 'Run terraform plan'
         required: false
-        default: "true"
+        default: 'true'
       run-conftest:
-        description: "Run conftest validation"
+        description: 'Run conftest validation'
         required: false
-        default: "true"
+        default: 'true'
 
 jobs:
   test-action:
@@ -37,10 +37,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 #v7.0.04
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e #v4.0.1
         with:
           terraform_version: ${{ inputs.terraform-version }}
 
