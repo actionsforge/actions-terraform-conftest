@@ -1066,14 +1066,14 @@ var require_util = __commonJS({
         }
         const port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80;
         let origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`;
-        let path10 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        let path9 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
         if (origin[origin.length - 1] === "/") {
           origin = origin.slice(0, origin.length - 1);
         }
-        if (path10 && path10[0] !== "/") {
-          path10 = `/${path10}`;
+        if (path9 && path9[0] !== "/") {
+          path9 = `/${path9}`;
         }
-        return new URL(`${origin}${path10}`);
+        return new URL(`${origin}${path9}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol)) {
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -1524,39 +1524,39 @@ var require_diagnostics = __commonJS({
       });
       diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
         const {
-          request: { method, path: path10, origin }
+          request: { method, path: path9, origin }
         } = evt;
-        debuglog("sending request to %s %s/%s", method, origin, path10);
+        debuglog("sending request to %s %s/%s", method, origin, path9);
       });
       diagnosticsChannel.channel("undici:request:headers").subscribe((evt) => {
         const {
-          request: { method, path: path10, origin },
+          request: { method, path: path9, origin },
           response: { statusCode }
         } = evt;
         debuglog(
           "received response to %s %s/%s - HTTP %d",
           method,
           origin,
-          path10,
+          path9,
           statusCode
         );
       });
       diagnosticsChannel.channel("undici:request:trailers").subscribe((evt) => {
         const {
-          request: { method, path: path10, origin }
+          request: { method, path: path9, origin }
         } = evt;
-        debuglog("trailers received from %s %s/%s", method, origin, path10);
+        debuglog("trailers received from %s %s/%s", method, origin, path9);
       });
       diagnosticsChannel.channel("undici:request:error").subscribe((evt) => {
         const {
-          request: { method, path: path10, origin },
+          request: { method, path: path9, origin },
           error: error2
         } = evt;
         debuglog(
           "request to %s %s/%s errored - %s",
           method,
           origin,
-          path10,
+          path9,
           error2.message
         );
       });
@@ -1605,9 +1605,9 @@ var require_diagnostics = __commonJS({
         });
         diagnosticsChannel.channel("undici:client:sendHeaders").subscribe((evt) => {
           const {
-            request: { method, path: path10, origin }
+            request: { method, path: path9, origin }
           } = evt;
-          debuglog("sending request to %s %s/%s", method, origin, path10);
+          debuglog("sending request to %s %s/%s", method, origin, path9);
         });
       }
       diagnosticsChannel.channel("undici:websocket:open").subscribe((evt) => {
@@ -1670,7 +1670,7 @@ var require_request = __commonJS({
     var kHandler = /* @__PURE__ */ Symbol("handler");
     var Request = class {
       constructor(origin, {
-        path: path10,
+        path: path9,
         method,
         body,
         headers,
@@ -1685,11 +1685,11 @@ var require_request = __commonJS({
         expectContinue,
         servername
       }, handler) {
-        if (typeof path10 !== "string") {
+        if (typeof path9 !== "string") {
           throw new InvalidArgumentError("path must be a string");
-        } else if (path10[0] !== "/" && !(path10.startsWith("http://") || path10.startsWith("https://")) && method !== "CONNECT") {
+        } else if (path9[0] !== "/" && !(path9.startsWith("http://") || path9.startsWith("https://")) && method !== "CONNECT") {
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        } else if (invalidPathRegex.test(path10)) {
+        } else if (invalidPathRegex.test(path9)) {
           throw new InvalidArgumentError("invalid request path");
         }
         if (typeof method !== "string") {
@@ -1755,7 +1755,7 @@ var require_request = __commonJS({
         this.completed = false;
         this.aborted = false;
         this.upgrade = upgrade || null;
-        this.path = query ? buildURL(path10, query) : path10;
+        this.path = query ? buildURL(path9, query) : path9;
         this.origin = origin;
         this.idempotent = idempotent == null ? method === "HEAD" || method === "GET" : idempotent;
         this.blocking = blocking == null ? false : blocking;
@@ -5713,7 +5713,7 @@ var require_client_h1 = __commonJS({
       kResume,
       kHTTPContext
     } = require_symbols();
-    var constants4 = require_constants2();
+    var constants3 = require_constants2();
     var EMPTY_BUF = Buffer.alloc(0);
     var FastBuffer = Buffer[Symbol.species];
     var addListener = util2.addListener;
@@ -5788,7 +5788,7 @@ var require_client_h1 = __commonJS({
       constructor(client, socket, { exports: exports3 }) {
         assert(Number.isFinite(client[kMaxHeadersSize]) && client[kMaxHeadersSize] > 0);
         this.llhttp = exports3;
-        this.ptr = this.llhttp.llhttp_alloc(constants4.TYPE.RESPONSE);
+        this.ptr = this.llhttp.llhttp_alloc(constants3.TYPE.RESPONSE);
         this.client = client;
         this.socket = socket;
         this.timeout = null;
@@ -5883,11 +5883,11 @@ var require_client_h1 = __commonJS({
             currentBufferRef = null;
           }
           const offset = llhttp.llhttp_get_error_pos(this.ptr) - currentBufferPtr;
-          if (ret !== constants4.ERROR.OK) {
+          if (ret !== constants3.ERROR.OK) {
             const body = data.subarray(offset);
-            if (ret === constants4.ERROR.PAUSED_UPGRADE) {
+            if (ret === constants3.ERROR.PAUSED_UPGRADE) {
               this.onUpgrade(body);
-            } else if (ret === constants4.ERROR.PAUSED) {
+            } else if (ret === constants3.ERROR.PAUSED) {
               this.paused = true;
               socket.unshift(body);
             } else {
@@ -5910,10 +5910,10 @@ var require_client_h1 = __commonJS({
         } finally {
           currentParser = null;
         }
-        if (ret === constants4.ERROR.OK) {
+        if (ret === constants3.ERROR.OK) {
           return null;
         }
-        if (ret === constants4.ERROR.PAUSED || ret === constants4.ERROR.PAUSED_UPGRADE) {
+        if (ret === constants3.ERROR.PAUSED || ret === constants3.ERROR.PAUSED_UPGRADE) {
           this.paused = true;
           return null;
         }
@@ -5930,7 +5930,7 @@ var require_client_h1 = __commonJS({
           const len = new Uint8Array(llhttp.memory.buffer, ptr).indexOf(0);
           message = "Response does not match the HTTP/1.1 protocol (" + Buffer.from(llhttp.memory.buffer, ptr, len).toString() + ")";
         }
-        return new HTTPParserError(message, constants4.ERROR[ret], data);
+        return new HTTPParserError(message, constants3.ERROR[ret], data);
       }
       destroy() {
         assert(this.ptr != null);
@@ -6109,7 +6109,7 @@ var require_client_h1 = __commonJS({
           socket[kBlocking] = false;
           client[kResume]();
         }
-        return pause ? constants4.ERROR.PAUSED : 0;
+        return pause ? constants3.ERROR.PAUSED : 0;
       }
       onBody(buf) {
         const { client, socket, statusCode, maxResponseSize } = this;
@@ -6131,7 +6131,7 @@ var require_client_h1 = __commonJS({
         }
         this.bytesRead += buf.length;
         if (request2.onData(buf) === false) {
-          return constants4.ERROR.PAUSED;
+          return constants3.ERROR.PAUSED;
         }
       }
       onMessageComplete() {
@@ -6167,13 +6167,13 @@ var require_client_h1 = __commonJS({
         if (socket[kWriting]) {
           assert(client[kRunning] === 0);
           util2.destroy(socket, new InformationalError("reset"));
-          return constants4.ERROR.PAUSED;
+          return constants3.ERROR.PAUSED;
         } else if (!shouldKeepAlive) {
           util2.destroy(socket, new InformationalError("reset"));
-          return constants4.ERROR.PAUSED;
+          return constants3.ERROR.PAUSED;
         } else if (socket[kReset] && client[kRunning] === 0) {
           util2.destroy(socket, new InformationalError("reset"));
-          return constants4.ERROR.PAUSED;
+          return constants3.ERROR.PAUSED;
         } else if (client[kPipelining] == null || client[kPipelining] === 1) {
           setImmediate(() => client[kResume]());
         } else {
@@ -6385,7 +6385,7 @@ var require_client_h1 = __commonJS({
       return method !== "GET" && method !== "HEAD" && method !== "OPTIONS" && method !== "TRACE" && method !== "CONNECT";
     }
     function writeH1(client, request2) {
-      const { method, path: path10, host, upgrade, blocking, reset } = request2;
+      const { method, path: path9, host, upgrade, blocking, reset } = request2;
       let { body, headers, contentLength } = request2;
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH" || method === "QUERY" || method === "PROPFIND" || method === "PROPPATCH";
       if (util2.isFormDataLike(body)) {
@@ -6460,7 +6460,7 @@ var require_client_h1 = __commonJS({
       if (blocking) {
         socket[kBlocking] = true;
       }
-      let header = `${method} ${path10} HTTP/1.1\r
+      let header = `${method} ${path9} HTTP/1.1\r
 `;
       if (typeof host === "string") {
         header += `host: ${host}\r
@@ -6986,7 +6986,7 @@ var require_client_h2 = __commonJS({
     }
     function writeH2(client, request2) {
       const session = client[kHTTP2Session];
-      const { method, path: path10, host, upgrade, expectContinue, signal, headers: reqHeaders } = request2;
+      const { method, path: path9, host, upgrade, expectContinue, signal, headers: reqHeaders } = request2;
       let { body } = request2;
       if (upgrade) {
         util2.errorRequest(client, request2, new Error("Upgrade not supported for H2"));
@@ -7053,7 +7053,7 @@ var require_client_h2 = __commonJS({
         });
         return true;
       }
-      headers[HTTP2_HEADER_PATH] = path10;
+      headers[HTTP2_HEADER_PATH] = path9;
       headers[HTTP2_HEADER_SCHEME] = "https";
       const expectsPayload = method === "PUT" || method === "POST" || method === "PATCH";
       if (body && typeof body.read === "function") {
@@ -7406,9 +7406,9 @@ var require_redirect_handler = __commonJS({
           return this.handler.onHeaders(statusCode, headers, resume, statusText);
         }
         const { origin, pathname, search } = util2.parseURL(new URL(this.location, this.opts.origin && new URL(this.opts.path, this.opts.origin)));
-        const path10 = search ? `${pathname}${search}` : pathname;
+        const path9 = search ? `${pathname}${search}` : pathname;
         this.opts.headers = cleanRequestHeaders(this.opts.headers, statusCode === 303, this.opts.origin !== origin);
-        this.opts.path = path10;
+        this.opts.path = path9;
         this.opts.origin = origin;
         this.opts.maxRedirections = 0;
         this.opts.query = null;
@@ -8644,10 +8644,10 @@ var require_proxy_agent = __commonJS({
         };
         const {
           origin,
-          path: path10 = "/",
+          path: path9 = "/",
           headers = {}
         } = opts;
-        opts.path = origin + path10;
+        opts.path = origin + path9;
         if (!("host" in headers) && !("Host" in headers)) {
           const { host } = new URL2(origin);
           headers.host = host;
@@ -10598,20 +10598,20 @@ var require_mock_utils = __commonJS({
       }
       return true;
     }
-    function safeUrl(path10) {
-      if (typeof path10 !== "string") {
-        return path10;
+    function safeUrl(path9) {
+      if (typeof path9 !== "string") {
+        return path9;
       }
-      const pathSegments = path10.split("?");
+      const pathSegments = path9.split("?");
       if (pathSegments.length !== 2) {
-        return path10;
+        return path9;
       }
       const qp = new URLSearchParams(pathSegments.pop());
       qp.sort();
       return [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path10, method, body, headers }) {
-      const pathMatch = matchValue(mockDispatch2.path, path10);
+    function matchKey(mockDispatch2, { path: path9, method, body, headers }) {
+      const pathMatch = matchValue(mockDispatch2.path, path9);
       const methodMatch = matchValue(mockDispatch2.method, method);
       const bodyMatch = typeof mockDispatch2.body !== "undefined" ? matchValue(mockDispatch2.body, body) : true;
       const headersMatch = matchHeaders(mockDispatch2, headers);
@@ -10633,7 +10633,7 @@ var require_mock_utils = __commonJS({
     function getMockDispatch(mockDispatches, key) {
       const basePath = key.query ? buildURL(key.path, key.query) : key.path;
       const resolvedPath = typeof basePath === "string" ? safeUrl(basePath) : basePath;
-      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path10 }) => matchValue(safeUrl(path10), resolvedPath));
+      let matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path9 }) => matchValue(safeUrl(path9), resolvedPath));
       if (matchedMockDispatches.length === 0) {
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       }
@@ -10671,9 +10671,9 @@ var require_mock_utils = __commonJS({
       }
     }
     function buildKey(opts) {
-      const { path: path10, method, body, headers, query } = opts;
+      const { path: path9, method, body, headers, query } = opts;
       return {
-        path: path10,
+        path: path9,
         method,
         body,
         headers,
@@ -11136,10 +11136,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         const withPrettyHeaders = pendingInterceptors.map(
-          ({ method, path: path10, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method, path: path9, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method,
             Origin: origin,
-            Path: path10,
+            Path: path9,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -11900,12 +11900,12 @@ var require_headers = __commonJS({
       append(name, value, isLowerCase) {
         this[kHeadersSortedMap] = null;
         const lowercaseName = isLowerCase ? name : name.toLowerCase();
-        const exists3 = this[kHeadersMap].get(lowercaseName);
-        if (exists3) {
-          const delimiter4 = lowercaseName === "cookie" ? "; " : ", ";
+        const exists2 = this[kHeadersMap].get(lowercaseName);
+        if (exists2) {
+          const delimiter3 = lowercaseName === "cookie" ? "; " : ", ";
           this[kHeadersMap].set(lowercaseName, {
-            name: exists3.name,
-            value: `${exists3.value}${delimiter4}${value}`
+            name: exists2.name,
+            value: `${exists2.value}${delimiter3}${value}`
           });
         } else {
           this[kHeadersMap].set(lowercaseName, { name, value });
@@ -16020,9 +16020,9 @@ var require_util6 = __commonJS({
         }
       }
     }
-    function validateCookiePath(path10) {
-      for (let i = 0; i < path10.length; ++i) {
-        const code = path10.charCodeAt(i);
+    function validateCookiePath(path9) {
+      for (let i = 0; i < path9.length; ++i) {
+        const code = path9.charCodeAt(i);
         if (code < 32 || // exclude CTLs (0-31)
         code > 126 || // exclude DEL and non-ascii
         code === 59) {
@@ -18753,11 +18753,11 @@ var require_undici = __commonJS({
           if (typeof opts.path !== "string") {
             throw new InvalidArgumentError("invalid opts.path");
           }
-          let path10 = opts.path;
+          let path9 = opts.path;
           if (!opts.path.startsWith("/")) {
-            path10 = `/${path10}`;
+            path9 = `/${path9}`;
           }
-          url = new URL(util2.parseOrigin(url).origin + path10);
+          url = new URL(util2.parseOrigin(url).origin + path9);
         } else {
           if (!opts) {
             opts = typeof url === "object" ? url : {};
@@ -19678,10 +19678,10 @@ var require_truncate = __commonJS({
   "node_modules/semver/functions/truncate.js"(exports2, module2) {
     "use strict";
     var parse = require_parse2();
-    var constants4 = require_constants6();
+    var constants3 = require_constants6();
     var SemVer = require_semver();
     var truncate = (version, truncation, options) => {
-      if (!constants4.RELEASE_TYPES.includes(truncation)) {
+      if (!constants3.RELEASE_TYPES.includes(truncation)) {
         return null;
       }
       const clonedVersion = cloneInputVersion(version, options);
@@ -20730,7 +20730,7 @@ var require_semver2 = __commonJS({
   "node_modules/semver/index.js"(exports2, module2) {
     "use strict";
     var internalRe = require_re();
-    var constants4 = require_constants6();
+    var constants3 = require_constants6();
     var SemVer = require_semver();
     var identifiers = require_identifiers();
     var parse = require_parse2();
@@ -20814,8 +20814,8 @@ var require_semver2 = __commonJS({
       re: internalRe.re,
       src: internalRe.src,
       tokens: internalRe.t,
-      SEMVER_SPEC_VERSION: constants4.SEMVER_SPEC_VERSION,
-      RELEASE_TYPES: constants4.RELEASE_TYPES,
+      SEMVER_SPEC_VERSION: constants3.SEMVER_SPEC_VERSION,
+      RELEASE_TYPES: constants3.RELEASE_TYPES,
       compareIdentifiers: identifiers.compareIdentifiers,
       rcompareIdentifiers: identifiers.rcompareIdentifiers
     };
@@ -20910,15 +20910,15 @@ function issueFileCommand(command, message) {
   });
 }
 function prepareKeyValueMessage(key, value) {
-  const delimiter4 = `ghadelimiter_${crypto.randomUUID()}`;
+  const delimiter3 = `ghadelimiter_${crypto.randomUUID()}`;
   const convertedValue = toCommandValue(value);
-  if (key.includes(delimiter4)) {
-    throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter4}"`);
+  if (key.includes(delimiter3)) {
+    throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter3}"`);
   }
-  if (convertedValue.includes(delimiter4)) {
-    throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter4}"`);
+  if (convertedValue.includes(delimiter3)) {
+    throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter3}"`);
   }
-  return `${key}<<${delimiter4}${os2.EOL}${convertedValue}${os2.EOL}${delimiter4}`;
+  return `${key}<<${delimiter3}${os2.EOL}${convertedValue}${os2.EOL}${delimiter3}`;
 }
 
 // node_modules/@actions/core/lib/core.js
@@ -21926,10 +21926,11 @@ var events = __toESM(require("events"), 1);
 var child = __toESM(require("child_process"), 1);
 var path3 = __toESM(require("path"), 1);
 
-// node_modules/@actions/exec/node_modules/@actions/io/lib/io.js
+// node_modules/@actions/io/lib/io.js
+var import_assert = require("assert");
 var path2 = __toESM(require("path"), 1);
 
-// node_modules/@actions/exec/node_modules/@actions/io/lib/io-util.js
+// node_modules/@actions/io/lib/io-util.js
 var fs2 = __toESM(require("fs"), 1);
 var path = __toESM(require("path"), 1);
 var __awaiter3 = function(thisArg, _arguments, P, generator) {
@@ -21961,6 +21962,15 @@ var __awaiter3 = function(thisArg, _arguments, P, generator) {
 };
 var { chmod, copyFile, lstat, mkdir, open, readdir, rename, rm, rmdir, stat, symlink, unlink } = fs2.promises;
 var IS_WINDOWS = process.platform === "win32";
+function readlink(fsPath) {
+  return __awaiter3(this, void 0, void 0, function* () {
+    const result = yield fs2.promises.readlink(fsPath);
+    if (IS_WINDOWS && !result.endsWith("\\")) {
+      return `${result}\\`;
+    }
+    return result;
+  });
+}
 var READONLY = fs2.constants.O_RDONLY;
 function exists(fsPath) {
   return __awaiter3(this, void 0, void 0, function* () {
@@ -22055,7 +22065,7 @@ function isUnixExecutable(stats) {
   return (stats.mode & 1) > 0 || (stats.mode & 8) > 0 && process.getgid !== void 0 && stats.gid === process.getgid() || (stats.mode & 64) > 0 && process.getuid !== void 0 && stats.uid === process.getuid();
 }
 
-// node_modules/@actions/exec/node_modules/@actions/io/lib/io.js
+// node_modules/@actions/io/lib/io.js
 var __awaiter4 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
@@ -22083,6 +22093,57 @@ var __awaiter4 = function(thisArg, _arguments, P, generator) {
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 };
+function cp(source_1, dest_1) {
+  return __awaiter4(this, arguments, void 0, function* (source, dest, options = {}) {
+    const { force, recursive, copySourceDirectory } = readCopyOptions(options);
+    const destStat = (yield exists(dest)) ? yield stat(dest) : null;
+    if (destStat && destStat.isFile() && !force) {
+      return;
+    }
+    const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path2.join(dest, path2.basename(source)) : dest;
+    if (!(yield exists(source))) {
+      throw new Error(`no such file or directory: ${source}`);
+    }
+    const sourceStat = yield stat(source);
+    if (sourceStat.isDirectory()) {
+      if (!recursive) {
+        throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
+      } else {
+        yield cpDirRecursive(source, newDest, 0, force);
+      }
+    } else {
+      if (path2.relative(source, newDest) === "") {
+        throw new Error(`'${newDest}' and '${source}' are the same file`);
+      }
+      yield copyFile2(source, newDest, force);
+    }
+  });
+}
+function rmRF(inputPath) {
+  return __awaiter4(this, void 0, void 0, function* () {
+    if (IS_WINDOWS) {
+      if (/[*"<>|]/.test(inputPath)) {
+        throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
+      }
+    }
+    try {
+      yield rm(inputPath, {
+        force: true,
+        maxRetries: 3,
+        recursive: true,
+        retryDelay: 300
+      });
+    } catch (err) {
+      throw new Error(`File was unable to be removed ${err}`);
+    }
+  });
+}
+function mkdirP(fsPath) {
+  return __awaiter4(this, void 0, void 0, function* () {
+    (0, import_assert.ok)(fsPath, "a path argument must be provided");
+    yield mkdir(fsPath, { recursive: true });
+  });
+}
 function which(tool, check) {
   return __awaiter4(this, void 0, void 0, function* () {
     if (!tool) {
@@ -22145,6 +22206,51 @@ function findInPath(tool) {
       }
     }
     return matches;
+  });
+}
+function readCopyOptions(options) {
+  const force = options.force == null ? true : options.force;
+  const recursive = Boolean(options.recursive);
+  const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
+  return { force, recursive, copySourceDirectory };
+}
+function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
+  return __awaiter4(this, void 0, void 0, function* () {
+    if (currentDepth >= 255)
+      return;
+    currentDepth++;
+    yield mkdirP(destDir);
+    const files = yield readdir(sourceDir);
+    for (const fileName of files) {
+      const srcFile = `${sourceDir}/${fileName}`;
+      const destFile = `${destDir}/${fileName}`;
+      const srcFileStat = yield lstat(srcFile);
+      if (srcFileStat.isDirectory()) {
+        yield cpDirRecursive(srcFile, destFile, currentDepth, force);
+      } else {
+        yield copyFile2(srcFile, destFile, force);
+      }
+    }
+    yield chmod(destDir, (yield stat(sourceDir)).mode);
+  });
+}
+function copyFile2(srcFile, destFile, force) {
+  return __awaiter4(this, void 0, void 0, function* () {
+    if ((yield lstat(srcFile)).isSymbolicLink()) {
+      try {
+        yield lstat(destFile);
+        yield unlink(destFile);
+      } catch (e) {
+        if (e.code === "EPERM") {
+          yield chmod(destFile, "0666");
+          yield unlink(destFile);
+        }
+      }
+      const symlinkFull = yield readlink(srcFile);
+      yield symlink(symlinkFull, destFile, IS_WINDOWS ? "junction" : null);
+    } else if (!(yield exists(destFile)) || force) {
+      yield copyFile(srcFile, destFile);
+    }
   });
 }
 
@@ -22704,209 +22810,25 @@ function info(message) {
 }
 
 // src/index.ts
-var path9 = __toESM(require("path"));
-
-// node_modules/@actions/tool-cache/node_modules/@actions/io/lib/io.js
-var import_assert = require("assert");
-var path5 = __toESM(require("path"), 1);
-
-// node_modules/@actions/tool-cache/node_modules/@actions/io/lib/io-util.js
-var fs3 = __toESM(require("fs"), 1);
-var __awaiter7 = function(thisArg, _arguments, P, generator) {
-  function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve2) {
-      resolve2(value);
-    });
-  }
-  return new (P || (P = Promise))(function(resolve2, reject) {
-    function fulfilled(value) {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function rejected(value) {
-      try {
-        step(generator["throw"](value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function step(result) {
-      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-    }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-};
-var { chmod: chmod2, copyFile: copyFile2, lstat: lstat2, mkdir: mkdir2, open: open2, readdir: readdir2, rename: rename2, rm: rm2, rmdir: rmdir2, stat: stat2, symlink: symlink2, unlink: unlink2 } = fs3.promises;
-var IS_WINDOWS3 = process.platform === "win32";
-function readlink2(fsPath) {
-  return __awaiter7(this, void 0, void 0, function* () {
-    const result = yield fs3.promises.readlink(fsPath);
-    if (IS_WINDOWS3 && !result.endsWith("\\")) {
-      return `${result}\\`;
-    }
-    return result;
-  });
-}
-var READONLY2 = fs3.constants.O_RDONLY;
-function exists2(fsPath) {
-  return __awaiter7(this, void 0, void 0, function* () {
-    try {
-      yield stat2(fsPath);
-    } catch (err) {
-      if (err.code === "ENOENT") {
-        return false;
-      }
-      throw err;
-    }
-    return true;
-  });
-}
-
-// node_modules/@actions/tool-cache/node_modules/@actions/io/lib/io.js
-var __awaiter8 = function(thisArg, _arguments, P, generator) {
-  function adopt(value) {
-    return value instanceof P ? value : new P(function(resolve2) {
-      resolve2(value);
-    });
-  }
-  return new (P || (P = Promise))(function(resolve2, reject) {
-    function fulfilled(value) {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function rejected(value) {
-      try {
-        step(generator["throw"](value));
-      } catch (e) {
-        reject(e);
-      }
-    }
-    function step(result) {
-      result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-    }
-    step((generator = generator.apply(thisArg, _arguments || [])).next());
-  });
-};
-function cp(source_1, dest_1) {
-  return __awaiter8(this, arguments, void 0, function* (source, dest, options = {}) {
-    const { force, recursive, copySourceDirectory } = readCopyOptions(options);
-    const destStat = (yield exists2(dest)) ? yield stat2(dest) : null;
-    if (destStat && destStat.isFile() && !force) {
-      return;
-    }
-    const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path5.join(dest, path5.basename(source)) : dest;
-    if (!(yield exists2(source))) {
-      throw new Error(`no such file or directory: ${source}`);
-    }
-    const sourceStat = yield stat2(source);
-    if (sourceStat.isDirectory()) {
-      if (!recursive) {
-        throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
-      } else {
-        yield cpDirRecursive(source, newDest, 0, force);
-      }
-    } else {
-      if (path5.relative(source, newDest) === "") {
-        throw new Error(`'${newDest}' and '${source}' are the same file`);
-      }
-      yield copyFile3(source, newDest, force);
-    }
-  });
-}
-function rmRF(inputPath) {
-  return __awaiter8(this, void 0, void 0, function* () {
-    if (IS_WINDOWS3) {
-      if (/[*"<>|]/.test(inputPath)) {
-        throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
-      }
-    }
-    try {
-      yield rm2(inputPath, {
-        force: true,
-        maxRetries: 3,
-        recursive: true,
-        retryDelay: 300
-      });
-    } catch (err) {
-      throw new Error(`File was unable to be removed ${err}`);
-    }
-  });
-}
-function mkdirP(fsPath) {
-  return __awaiter8(this, void 0, void 0, function* () {
-    (0, import_assert.ok)(fsPath, "a path argument must be provided");
-    yield mkdir2(fsPath, { recursive: true });
-  });
-}
-function readCopyOptions(options) {
-  const force = options.force == null ? true : options.force;
-  const recursive = Boolean(options.recursive);
-  const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
-  return { force, recursive, copySourceDirectory };
-}
-function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
-  return __awaiter8(this, void 0, void 0, function* () {
-    if (currentDepth >= 255)
-      return;
-    currentDepth++;
-    yield mkdirP(destDir);
-    const files = yield readdir2(sourceDir);
-    for (const fileName of files) {
-      const srcFile = `${sourceDir}/${fileName}`;
-      const destFile = `${destDir}/${fileName}`;
-      const srcFileStat = yield lstat2(srcFile);
-      if (srcFileStat.isDirectory()) {
-        yield cpDirRecursive(srcFile, destFile, currentDepth, force);
-      } else {
-        yield copyFile3(srcFile, destFile, force);
-      }
-    }
-    yield chmod2(destDir, (yield stat2(sourceDir)).mode);
-  });
-}
-function copyFile3(srcFile, destFile, force) {
-  return __awaiter8(this, void 0, void 0, function* () {
-    if ((yield lstat2(srcFile)).isSymbolicLink()) {
-      try {
-        yield lstat2(destFile);
-        yield unlink2(destFile);
-      } catch (e) {
-        if (e.code === "EPERM") {
-          yield chmod2(destFile, "0666");
-          yield unlink2(destFile);
-        }
-      }
-      const symlinkFull = yield readlink2(srcFile);
-      yield symlink2(symlinkFull, destFile, IS_WINDOWS3 ? "junction" : null);
-    } else if (!(yield exists2(destFile)) || force) {
-      yield copyFile2(srcFile, destFile);
-    }
-  });
-}
+var path8 = __toESM(require("path"));
 
 // node_modules/@actions/tool-cache/lib/tool-cache.js
 var crypto2 = __toESM(require("crypto"), 1);
-var fs4 = __toESM(require("fs"), 1);
+var fs3 = __toESM(require("fs"), 1);
 
 // node_modules/@actions/tool-cache/lib/manifest.js
 var semver = __toESM(require_semver2(), 1);
 
 // node_modules/@actions/tool-cache/lib/tool-cache.js
 var os6 = __toESM(require("os"), 1);
-var path6 = __toESM(require("path"), 1);
+var path5 = __toESM(require("path"), 1);
 var semver2 = __toESM(require_semver2(), 1);
 var stream = __toESM(require("stream"), 1);
 var util = __toESM(require("util"), 1);
 var import_assert2 = require("assert");
 
 // node_modules/@actions/tool-cache/lib/retry-helper.js
-var __awaiter9 = function(thisArg, _arguments, P, generator) {
+var __awaiter7 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -22946,7 +22868,7 @@ var RetryHelper = class {
     }
   }
   execute(action, isRetryable) {
-    return __awaiter9(this, void 0, void 0, function* () {
+    return __awaiter7(this, void 0, void 0, function* () {
       let attempt = 1;
       while (attempt < this.maxAttempts) {
         try {
@@ -22969,14 +22891,14 @@ var RetryHelper = class {
     return Math.floor(Math.random() * (this.maxSeconds - this.minSeconds + 1)) + this.minSeconds;
   }
   sleep(seconds) {
-    return __awaiter9(this, void 0, void 0, function* () {
+    return __awaiter7(this, void 0, void 0, function* () {
       return new Promise((resolve2) => setTimeout(resolve2, seconds * 1e3));
     });
   }
 };
 
 // node_modules/@actions/tool-cache/lib/tool-cache.js
-var __awaiter10 = function(thisArg, _arguments, P, generator) {
+var __awaiter8 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve2) {
       resolve2(value);
@@ -23010,20 +22932,20 @@ var HTTPError = class extends Error {
     Object.setPrototypeOf(this, new.target.prototype);
   }
 };
-var IS_WINDOWS4 = process.platform === "win32";
+var IS_WINDOWS3 = process.platform === "win32";
 var IS_MAC = process.platform === "darwin";
 var userAgent = "actions/tool-cache";
 function downloadTool(url, dest, auth, headers) {
-  return __awaiter10(this, void 0, void 0, function* () {
-    dest = dest || path6.join(_getTempDirectory(), crypto2.randomUUID());
-    yield mkdirP(path6.dirname(dest));
+  return __awaiter8(this, void 0, void 0, function* () {
+    dest = dest || path5.join(_getTempDirectory(), crypto2.randomUUID());
+    yield mkdirP(path5.dirname(dest));
     debug(`Downloading ${url}`);
     debug(`Destination ${dest}`);
     const maxAttempts = 3;
     const minSeconds = _getGlobal("TEST_DOWNLOAD_TOOL_RETRY_MIN_SECONDS", 10);
     const maxSeconds = _getGlobal("TEST_DOWNLOAD_TOOL_RETRY_MAX_SECONDS", 20);
     const retryHelper = new RetryHelper(maxAttempts, minSeconds, maxSeconds);
-    return yield retryHelper.execute(() => __awaiter10(this, void 0, void 0, function* () {
+    return yield retryHelper.execute(() => __awaiter8(this, void 0, void 0, function* () {
       return yield downloadToolAttempt(url, dest || "", auth, headers);
     }), (err) => {
       if (err instanceof HTTPError && err.httpStatusCode) {
@@ -23036,8 +22958,8 @@ function downloadTool(url, dest, auth, headers) {
   });
 }
 function downloadToolAttempt(url, dest, auth, headers) {
-  return __awaiter10(this, void 0, void 0, function* () {
-    if (fs4.existsSync(dest)) {
+  return __awaiter8(this, void 0, void 0, function* () {
+    if (fs3.existsSync(dest)) {
       throw new Error(`Destination file path ${dest} already exists`);
     }
     const http2 = new HttpClient(userAgent, [], {
@@ -23061,7 +22983,7 @@ function downloadToolAttempt(url, dest, auth, headers) {
     const readStream = responseMessageFactory();
     let succeeded = false;
     try {
-      yield pipeline2(readStream, fs4.createWriteStream(dest));
+      yield pipeline2(readStream, fs3.createWriteStream(dest));
       debug("download complete");
       succeeded = true;
       return dest;
@@ -23078,7 +23000,7 @@ function downloadToolAttempt(url, dest, auth, headers) {
   });
 }
 function extractTar(file_1, dest_1) {
-  return __awaiter10(this, arguments, void 0, function* (file, dest, flags = "xz") {
+  return __awaiter8(this, arguments, void 0, function* (file, dest, flags = "xz") {
     if (!file) {
       throw new Error("parameter 'file' is required");
     }
@@ -23106,7 +23028,7 @@ function extractTar(file_1, dest_1) {
     }
     let destArg = dest;
     let fileArg = file;
-    if (IS_WINDOWS4 && isGnuTar) {
+    if (IS_WINDOWS3 && isGnuTar) {
       args.push("--force-local");
       destArg = dest.replace(/\\/g, "/");
       fileArg = file.replace(/\\/g, "/");
@@ -23121,17 +23043,17 @@ function extractTar(file_1, dest_1) {
   });
 }
 function cacheDir(sourceDir, tool, version, arch3) {
-  return __awaiter10(this, void 0, void 0, function* () {
+  return __awaiter8(this, void 0, void 0, function* () {
     version = semver2.clean(version) || version;
     arch3 = arch3 || os6.arch();
     debug(`Caching tool ${tool} ${version} ${arch3}`);
     debug(`source dir: ${sourceDir}`);
-    if (!fs4.statSync(sourceDir).isDirectory()) {
+    if (!fs3.statSync(sourceDir).isDirectory()) {
       throw new Error("sourceDir is not a directory");
     }
     const destPath = yield _createToolPath(tool, version, arch3);
-    for (const itemName of fs4.readdirSync(sourceDir)) {
-      const s = path6.join(sourceDir, itemName);
+    for (const itemName of fs3.readdirSync(sourceDir)) {
+      const s = path5.join(sourceDir, itemName);
       yield cp(s, destPath, { recursive: true });
     }
     _completeToolPath(tool, version, arch3);
@@ -23154,9 +23076,9 @@ function find(toolName, versionSpec, arch3) {
   let toolPath = "";
   if (versionSpec) {
     versionSpec = semver2.clean(versionSpec) || "";
-    const cachePath = path6.join(_getCacheDirectory(), toolName, versionSpec, arch3);
+    const cachePath = path5.join(_getCacheDirectory(), toolName, versionSpec, arch3);
     debug(`checking cache: ${cachePath}`);
-    if (fs4.existsSync(cachePath) && fs4.existsSync(`${cachePath}.complete`)) {
+    if (fs3.existsSync(cachePath) && fs3.existsSync(`${cachePath}.complete`)) {
       debug(`Found tool in cache ${toolName} ${versionSpec} ${arch3}`);
       toolPath = cachePath;
     } else {
@@ -23168,13 +23090,13 @@ function find(toolName, versionSpec, arch3) {
 function findAllVersions(toolName, arch3) {
   const versions = [];
   arch3 = arch3 || os6.arch();
-  const toolPath = path6.join(_getCacheDirectory(), toolName);
-  if (fs4.existsSync(toolPath)) {
-    const children = fs4.readdirSync(toolPath);
+  const toolPath = path5.join(_getCacheDirectory(), toolName);
+  if (fs3.existsSync(toolPath)) {
+    const children = fs3.readdirSync(toolPath);
     for (const child2 of children) {
       if (isExplicitVersion(child2)) {
-        const fullPath = path6.join(toolPath, child2, arch3 || "");
-        if (fs4.existsSync(fullPath) && fs4.existsSync(`${fullPath}.complete`)) {
+        const fullPath = path5.join(toolPath, child2, arch3 || "");
+        if (fs3.existsSync(fullPath) && fs3.existsSync(`${fullPath}.complete`)) {
           versions.push(child2);
         }
       }
@@ -23183,17 +23105,17 @@ function findAllVersions(toolName, arch3) {
   return versions;
 }
 function _createExtractFolder(dest) {
-  return __awaiter10(this, void 0, void 0, function* () {
+  return __awaiter8(this, void 0, void 0, function* () {
     if (!dest) {
-      dest = path6.join(_getTempDirectory(), crypto2.randomUUID());
+      dest = path5.join(_getTempDirectory(), crypto2.randomUUID());
     }
     yield mkdirP(dest);
     return dest;
   });
 }
 function _createToolPath(tool, version, arch3) {
-  return __awaiter10(this, void 0, void 0, function* () {
-    const folderPath = path6.join(_getCacheDirectory(), tool, semver2.clean(version) || version, arch3 || "");
+  return __awaiter8(this, void 0, void 0, function* () {
+    const folderPath = path5.join(_getCacheDirectory(), tool, semver2.clean(version) || version, arch3 || "");
     debug(`destination ${folderPath}`);
     const markerPath = `${folderPath}.complete`;
     yield rmRF(folderPath);
@@ -23203,9 +23125,9 @@ function _createToolPath(tool, version, arch3) {
   });
 }
 function _completeToolPath(tool, version, arch3) {
-  const folderPath = path6.join(_getCacheDirectory(), tool, semver2.clean(version) || version, arch3 || "");
+  const folderPath = path5.join(_getCacheDirectory(), tool, semver2.clean(version) || version, arch3 || "");
   const markerPath = `${folderPath}.complete`;
-  fs4.writeFileSync(markerPath, "");
+  fs3.writeFileSync(markerPath, "");
   debug("finished caching tool");
 }
 function isExplicitVersion(versionSpec) {
@@ -23255,8 +23177,8 @@ function _getGlobal(key, defaultValue) {
 }
 
 // src/setup-conftest.ts
-var path7 = __toESM(require("path"));
-var fs5 = __toESM(require("fs"));
+var path6 = __toESM(require("path"));
+var fs4 = __toESM(require("fs"));
 var https2 = __toESM(require("https"));
 var CONFTEST_REPO = "open-policy-agent/conftest";
 var CONFTEST_BINARY_NAME = "conftest";
@@ -23338,8 +23260,8 @@ async function setupConftest(version) {
   const cachedPath = find(CONFTEST_BINARY_NAME, resolvedVersion);
   if (cachedPath) {
     info(`Using cached conftest at: ${cachedPath}`);
-    const conftestPath = path7.join(cachedPath, CONFTEST_BINARY_NAME);
-    if (fs5.existsSync(conftestPath)) {
+    const conftestPath = path6.join(cachedPath, CONFTEST_BINARY_NAME);
+    if (fs4.existsSync(conftestPath)) {
       await exec("chmod", ["+x", conftestPath]);
       return conftestPath;
     }
@@ -23350,37 +23272,37 @@ async function setupConftest(version) {
   info(`Downloaded to: ${downloadPath}`);
   const extractPath = await extractTar(downloadPath);
   info(`Extracted to: ${extractPath}`);
-  let extractedBinary = path7.join(extractPath, CONFTEST_BINARY_NAME);
-  if (!fs5.existsSync(extractedBinary)) {
-    const files = fs5.readdirSync(extractPath, { withFileTypes: true });
+  let extractedBinary = path6.join(extractPath, CONFTEST_BINARY_NAME);
+  if (!fs4.existsSync(extractedBinary)) {
+    const files = fs4.readdirSync(extractPath, { withFileTypes: true });
     for (const file of files) {
       if (file.isDirectory()) {
-        const subdirPath = path7.join(extractPath, file.name);
-        const binaryInSubdir = path7.join(subdirPath, CONFTEST_BINARY_NAME);
-        if (fs5.existsSync(binaryInSubdir)) {
+        const subdirPath = path6.join(extractPath, file.name);
+        const binaryInSubdir = path6.join(subdirPath, CONFTEST_BINARY_NAME);
+        if (fs4.existsSync(binaryInSubdir)) {
           extractedBinary = binaryInSubdir;
           break;
         }
       } else if (file.name === CONFTEST_BINARY_NAME) {
-        extractedBinary = path7.join(extractPath, file.name);
+        extractedBinary = path6.join(extractPath, file.name);
         break;
       }
     }
   }
-  if (!fs5.existsSync(extractedBinary)) {
+  if (!fs4.existsSync(extractedBinary)) {
     throw new Error(`Conftest binary not found in extracted archive at: ${extractPath}`);
   }
   await exec("chmod", ["+x", extractedBinary]);
-  const binaryDir = path7.dirname(extractedBinary);
+  const binaryDir = path6.dirname(extractedBinary);
   const cachedDir = await cacheDir(binaryDir, CONFTEST_BINARY_NAME, resolvedVersion);
-  const cachedBinary = path7.join(cachedDir, CONFTEST_BINARY_NAME);
+  const cachedBinary = path6.join(cachedDir, CONFTEST_BINARY_NAME);
   info(`Cached conftest at: ${cachedBinary}`);
   return cachedBinary;
 }
 
 // src/terraform.ts
-var path8 = __toESM(require("path"));
-var fs6 = __toESM(require("fs"));
+var path7 = __toESM(require("path"));
+var fs5 = __toESM(require("fs"));
 async function terraformInit(workingDirectory) {
   info("Running terraform init...");
   await exec("terraform", ["init"], {
@@ -23407,9 +23329,9 @@ async function terraformTest(workingDirectory) {
 }
 async function terraformPlan(workingDirectory, planFile) {
   info("Running terraform plan...");
-  const planFileBasename = path8.basename(planFile);
+  const planFileBasename = path7.basename(planFile);
   const planBinaryFilename = "tfplan.binary";
-  const planJson = path8.join(workingDirectory, planFileBasename);
+  const planJson = path7.join(workingDirectory, planFileBasename);
   await exec("terraform", ["plan", "-out", planBinaryFilename], {
     cwd: workingDirectory
   });
@@ -23428,12 +23350,12 @@ async function terraformPlan(workingDirectory, planFile) {
     throw new Error(`Failed to convert terraform plan to JSON. Exit code: ${exitCode}`);
   }
   const jsonContent = jsonOutput.join("");
-  fs6.writeFileSync(planJson, jsonContent);
+  fs5.writeFileSync(planJson, jsonContent);
   info(`Plan JSON written to: ${planJson}`);
   return planJson;
 }
 async function runTerraform(workingDirectory, runFmt, runValidate, runTest, runPlan, planFile) {
-  if (!fs6.existsSync(workingDirectory)) {
+  if (!fs5.existsSync(workingDirectory)) {
     throw new Error(`Working directory does not exist: ${workingDirectory}`);
   }
   await terraformInit(workingDirectory);
@@ -23453,14 +23375,14 @@ async function runTerraform(workingDirectory, runFmt, runValidate, runTest, runP
 }
 
 // src/conftest.ts
-var fs7 = __toESM(require("fs"));
+var fs6 = __toESM(require("fs"));
 async function runConftest(conftestPath, planFile, policyPath) {
   info(`Running conftest test on: ${planFile}`);
   info(`Using policy path: ${policyPath}`);
-  if (!fs7.existsSync(planFile)) {
+  if (!fs6.existsSync(planFile)) {
     throw new Error(`Plan file does not exist: ${planFile}`);
   }
-  if (!fs7.existsSync(policyPath)) {
+  if (!fs6.existsSync(policyPath)) {
     throw new Error(`Policy path does not exist: ${policyPath}`);
   }
   const output = [];
@@ -23542,7 +23464,7 @@ async function run() {
     info(`Run conftest: ${runConftestValidation}`);
     info("Setting up conftest...");
     const conftestPath = await setupConftest(conftestVersion);
-    addPath(path9.dirname(conftestPath));
+    addPath(path8.dirname(conftestPath));
     info(`Conftest available at: ${conftestPath}`);
     let planFilePath = null;
     if (runTerraformFmt || runTerraformValidate || runTerraformTest || runTerraformPlan) {
